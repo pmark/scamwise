@@ -82,7 +82,13 @@ function VerdictCard({
           <RefreshCw className="mr-2 h-4 w-4" />
           Analyze Another
         </Button>
-        <BuyMeACoffeeButton />
+        <div className="text-right">
+          <p className="text-xs text-muted-foreground mb-2">
+            This service has real costs to run. Your support is greatly
+            appreciated!
+          </p>
+          <BuyMeACoffeeButton />
+        </div>
       </CardFooter>
     </Card>
   );
