@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import type { AssessScamOutput } from '@/ai/flows/instant-scam-assessment';
 import type { CoachApproachOutput } from '@/ai/flows/coach-approach';
 import { getCoachApproach, getInstantAssessment } from '@/app/actions';
@@ -15,7 +15,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
-import { Camera, BotMessageSquare, ShieldAlert } from 'lucide-react';
+import { Camera, BotMessageSquare, ShieldAlert, X } from 'lucide-react';
 import { AnalysisResult } from '@/components/analysis-result';
 import { useToast } from '@/hooks/use-toast';
 
@@ -25,16 +25,56 @@ type AnalysisResultType =
 
 export function ScamAnalyzer() {
   const [message, setMessage] = useState('');
+  const [photoDataUri, setPhotoDataUri] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [analysisResult, setAnalysisResult] =
     useState<AnalysisResultType | null>(null);
   const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPhotoDataUri(reader.result as string);
+        toast({
+          title: 'Image Uploaded!',
+          description: "We've added your image to the analysis.",
+        });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handlePaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+    const items = e.clipboardData.items;
+    for (const item of Array.from(items)) {
+      if (item.type.startsWith('image/')) {
+        const file = item.getAsFile();
+        if (file) {
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            setPhotoDataUri(reader.result as string);
+            toast({
+              title: 'Image Pasted!',
+              description: "We've added your screenshot to the analysis.",
+            });
+          };
+          reader.readAsDataURL(file);
+          e.preventDefault(); // Prevent pasting file path into textarea
+          return;
+        }
+      }
+    }
+  };
 
   const handleAnalysis = async (type: 'instant' | 'coach') => {
-    if (!message.trim()) {
+    const messageContent = message.trim();
+    if (!messageContent && !photoDataUri) {
       toast({
-        title: 'Message is empty',
-        description: 'Please enter a message to analyze.',
+        title: 'Nothing to analyze',
+        description: 'Please enter a message or upload an image.',
         variant: 'destructive',
       });
       return;
@@ -45,10 +85,16 @@ export function ScamAnalyzer() {
 
     try {
       if (type === 'instant') {
-        const result = await getInstantAssessment({ message });
+        const result = await getInstantAssessment({
+          message: messageContent,
+          photoDataUri: photoDataUri,
+        });
         setAnalysisResult({ ...result, type: 'instant' });
       } else {
-        const result = await getCoachApproach({ message });
+        const result = await getCoachApproach({
+          message: messageContent,
+          photoDataUri: photoDataUri,
+        });
         setAnalysisResult({ ...result, type: 'coach' });
       }
     } catch (error) {
@@ -69,7 +115,8 @@ export function ScamAnalyzer() {
         <CardHeader>
           <CardTitle className="text-2xl">Check a Message</CardTitle>
           <CardDescription>
-            Paste the message below, or type what someone said on the phone.
+            Paste the message below, upload a screenshot, or just paste a
+            screenshot directly into the text area.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -78,22 +125,49 @@ export function ScamAnalyzer() {
               placeholder="e.g. 'Hello, we've detected a problem with your account...'"
               rows={6}
               value={message}
+              onPaste={handlePaste}
               onChange={(e) => setMessage(e.target.value)}
               className="text-base"
               disabled={isLoading}
             />
             <div className="flex items-center gap-2">
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleFileChange}
+                className="hidden"
+                accept="image/*"
+              />
               <Button
                 variant="outline"
                 size="sm"
                 className="text-muted-foreground"
-                disabled={true}
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isLoading}
               >
                 <Camera className="mr-2 h-4 w-4" />
-                Upload Photo (coming soon)
+                Upload Photo
               </Button>
             </div>
           </div>
+          {photoDataUri && (
+            <div className="relative mt-4">
+              <img
+                src={photoDataUri}
+                alt="Uploaded preview"
+                className="rounded-md max-h-60 w-auto mx-auto border"
+              />
+              <Button
+                variant="destructive"
+                size="icon"
+                className="absolute top-2 right-2 h-7 w-7 bg-black/50 hover:bg-black/70 border-0"
+                onClick={() => setPhotoDataUri(null)}
+              >
+                <X className="h-4 w-4" />
+                <span className="sr-only">Remove image</span>
+              </Button>
+            </div>
+          )}
         </CardContent>
         <CardFooter className="flex flex-col sm:flex-row justify-between gap-4">
           <Button
