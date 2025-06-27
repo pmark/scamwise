@@ -12,7 +12,7 @@ export default function Home() {
         </h2>
         <p className="mt-6 text-lg md:text-xl text-muted-foreground">
           Feeling unsure about a message? You've come to the right place.
-          ScamCheck helps you analyze suspicious texts, emails, and phone
+          ScamWise helps you analyze suspicious texts, emails, and phone
           calls, empowering you to spot scams with confidence.
         </p>
       </div>
