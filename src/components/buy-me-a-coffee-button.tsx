@@ -6,6 +6,7 @@ export const BuyMeACoffeeButton = () => {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    // This effect runs once when the component mounts.
     if (!ref.current) return;
 
     const script = document.createElement('script');
@@ -21,22 +22,21 @@ export const BuyMeACoffeeButton = () => {
     script.setAttribute('data-coffee-color', '#ffffff');
     script.async = true;
 
-    // To prevent multiple buttons from rendering on fast refresh
-    while (ref.current.firstChild) {
-      ref.current.removeChild(ref.current.firstChild);
-    }
     ref.current.appendChild(script);
 
     const currentRef = ref.current;
 
+    // This cleanup function runs when the component unmounts.
+    // It's crucial for preventing issues with fast refresh in development.
     return () => {
       if (currentRef) {
+        // When the component unmounts, we remove the script and the widget.
         while (currentRef.firstChild) {
           currentRef.removeChild(currentRef.firstChild);
         }
       }
     };
-  }, []);
+  }, []); // The empty dependency array ensures this effect runs only once on mount.
 
   return <div ref={ref}></div>;
 };
