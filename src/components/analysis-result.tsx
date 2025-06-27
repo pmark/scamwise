@@ -29,6 +29,7 @@ import {
   RefreshCw,
   Info,
 } from 'lucide-react';
+import { BuyMeACoffeeButton } from './buy-me-a-coffee-button';
 
 interface AnalysisResultProps {
   result: UnifiedAssessmentOutput;
@@ -76,11 +77,12 @@ function VerdictCard({
         <h3 className="font-semibold mb-2 text-lg">Our Recommendation:</h3>
         <p className="text-foreground/90">{recommendation}</p>
       </CardContent>
-      <CardFooter>
+      <CardFooter className="flex flex-wrap items-center justify-between gap-4">
         <Button onClick={onReset} variant="outline">
           <RefreshCw className="mr-2 h-4 w-4" />
           Analyze Another
         </Button>
+        <BuyMeACoffeeButton />
       </CardFooter>
     </Card>
   );

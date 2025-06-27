@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Coffee } from 'lucide-react';
+import { BuyMeACoffeeButton } from './buy-me-a-coffee-button';
 
 export function Footer() {
   return (
@@ -16,15 +16,7 @@ export function Footer() {
             <Link href="#" className="text-sm hover:underline">
               Terms of Service
             </Link>
-            <a
-              href="https://coff.ee/scamwise"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm hover:underline flex items-center gap-1.5"
-            >
-              <Coffee className="h-4 w-4" />
-              Buy me a coffee
-            </a>
+            <BuyMeACoffeeButton />
           </nav>
         </div>
         <p className="text-center text-xs text-muted-foreground mt-6">
