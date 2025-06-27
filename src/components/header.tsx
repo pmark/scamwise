@@ -10,7 +10,7 @@ export function Header() {
       <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-6">
         <Link href="/" className="flex items-center gap-2">
           <ShieldCheck className="h-8 w-8 text-primary" />
-          <span className="text-xl font-bold">ScamSensei</span>
+          <span className="text-xl font-bold">ScamCheck</span>
         </Link>
         <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
           <Link
@@ -43,7 +43,7 @@ export function Header() {
             <nav className="grid gap-6 text-lg font-medium mt-8">
             <Link href="/" className="flex items-center gap-2 text-lg font-semibold">
               <ShieldCheck className="h-6 w-6 text-primary" />
-              <span className="sr-only">ScamSensei</span>
+              <span className="sr-only">ScamCheck</span>
             </Link>
             <Link href="/" className="hover:text-foreground">
               Analyze

@@ -5,7 +5,7 @@ import { Header } from '@/components/header';
 import { Footer } from '@/components/footer';
 
 export const metadata: Metadata = {
-  title: 'ScamSensei - Your Personal Scam-Spotting Coach',
+  title: 'ScamCheck - Your Personal Scam-Spotting Coach',
   description:
     'Build confidence in spotting scams. Get quick answers or let our Coach Approach guide you. Simple, private, and designed to make you more confident.',
 };
