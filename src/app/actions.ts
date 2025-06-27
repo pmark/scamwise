@@ -1,24 +1,13 @@
 'use server';
 
-import {
-  assessScam,
-  AssessScamInput,
-  AssessScamOutput,
-} from '@/ai/flows/instant-scam-assessment';
-import {
-  coachApproach,
-  CoachApproachInput,
-  CoachApproachOutput,
-} from '@/ai/flows/coach-approach';
+import {unifiedAssessment} from '@/ai/flows/unified-assessment';
+import type {
+  UnifiedAssessmentInput,
+  UnifiedAssessmentOutput,
+} from '@/ai/types';
 
-export async function getInstantAssessment(
-  input: AssessScamInput
-): Promise<AssessScamOutput> {
-  return await assessScam(input);
-}
-
-export async function getCoachApproach(
-  input: CoachApproachInput
-): Promise<CoachApproachOutput> {
-  return await coachApproach(input);
+export async function getUnifiedAssessment(
+  input: UnifiedAssessmentInput
+): Promise<UnifiedAssessmentOutput> {
+  return await unifiedAssessment(input);
 }

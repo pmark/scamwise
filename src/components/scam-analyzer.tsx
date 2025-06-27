@@ -1,9 +1,8 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import type { AssessScamOutput } from '@/ai/flows/instant-scam-assessment';
-import type { CoachApproachOutput } from '@/ai/flows/coach-approach';
-import { getCoachApproach, getInstantAssessment } from '@/app/actions';
+import type { UnifiedAssessmentOutput } from '@/ai/types';
+import { getUnifiedAssessment } from '@/app/actions';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -19,16 +18,15 @@ import { Camera, BotMessageSquare, ShieldAlert, X } from 'lucide-react';
 import { AnalysisResult } from '@/components/analysis-result';
 import { useToast } from '@/hooks/use-toast';
 
-type AnalysisResultType =
-  | (AssessScamOutput & { type: 'instant' })
-  | (CoachApproachOutput & { type: 'coach' });
-
 export function ScamAnalyzer() {
   const [message, setMessage] = useState('');
   const [photoDataUri, setPhotoDataUri] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [analysisResult, setAnalysisResult] =
-    useState<AnalysisResultType | null>(null);
+    useState<UnifiedAssessmentOutput | null>(null);
+  const [analysisMode, setAnalysisMode] = useState<'coach' | 'instant' | null>(
+    null
+  );
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -82,21 +80,14 @@ export function ScamAnalyzer() {
 
     setIsLoading(true);
     setAnalysisResult(null);
+    setAnalysisMode(type);
 
     try {
-      if (type === 'instant') {
-        const result = await getInstantAssessment({
-          message: messageContent,
-          photoDataUri: photoDataUri,
-        });
-        setAnalysisResult({ ...result, type: 'instant' });
-      } else {
-        const result = await getCoachApproach({
-          message: messageContent,
-          photoDataUri: photoDataUri,
-        });
-        setAnalysisResult({ ...result, type: 'coach' });
-      }
+      const result = await getUnifiedAssessment({
+        message: messageContent,
+        photoDataUri: photoDataUri,
+      });
+      setAnalysisResult(result);
     } catch (error) {
       console.error('Analysis failed:', error);
       toast({
@@ -104,10 +95,30 @@ export function ScamAnalyzer() {
         description: 'Something went wrong. Please try again later.',
         variant: 'destructive',
       });
+      setAnalysisMode(null);
     } finally {
       setIsLoading(false);
     }
   };
+
+  const resetAnalysis = () => {
+    setAnalysisResult(null);
+    setAnalysisMode(null);
+    setMessage('');
+    setPhotoDataUri(null);
+  };
+
+  if (analysisResult && analysisMode) {
+    return (
+      <div className="mt-8 animate-in fade-in duration-500">
+        <AnalysisResult
+          result={analysisResult}
+          mode={analysisMode}
+          onReset={resetAnalysis}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="mt-12 max-w-2xl mx-auto">
@@ -177,10 +188,10 @@ export function ScamAnalyzer() {
               disabled={isLoading}
             >
               <BotMessageSquare className="mr-2 h-5 w-5" />
-              Coach Me
+              Start Coaching
             </Button>
             <p className="text-xs text-muted-foreground mt-2">
-              Let me guide you with questions to help you spot the scam.
+              Answer questions one-by-one to learn the red flags.
             </p>
           </div>
           <div className="flex-1 w-full sm:text-right">
@@ -191,10 +202,10 @@ export function ScamAnalyzer() {
               disabled={isLoading}
             >
               <ShieldAlert className="mr-2 h-5 w-5" />
-              Get Instant Answer
+              Instant Analysis
             </Button>
             <p className="text-xs text-muted-foreground mt-2">
-              Get a fast verdict on whether this is a scam.
+              Get a quick verdict and a checklist of potential issues.
             </p>
           </div>
         </CardFooter>
@@ -224,15 +235,6 @@ export function ScamAnalyzer() {
             </svg>
             <span className="text-lg">Analyzing...</span>
           </div>
-        </div>
-      )}
-
-      {analysisResult && (
-        <div className="mt-8 animate-in fade-in duration-500">
-          <AnalysisResult
-            result={analysisResult}
-            originalMessage={message}
-          />
         </div>
       )}
     </div>

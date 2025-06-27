@@ -1,7 +1,10 @@
 'use client';
 
-import type { AssessScamOutput } from '@/ai/flows/instant-scam-assessment';
-import type { CoachApproachOutput } from '@/ai/flows/coach-approach';
+import { useState } from 'react';
+import type {
+  UnifiedAssessmentOutput,
+  ChecklistItem,
+} from '@/ai/types';
 import {
   Card,
   CardContent,
@@ -11,136 +14,244 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Shield, ShieldAlert, ShieldX, Share2 } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-
-type AnalysisResultType =
-  | (AssessScamOutput & { type: 'instant' })
-  | (CoachApproachOutput & { type: 'coach' });
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion';
+import {
+  AlertCircle,
+  CheckCircle2,
+  Shield,
+  ShieldAlert,
+  ShieldX,
+  RefreshCw,
+  Info,
+} from 'lucide-react';
 
 interface AnalysisResultProps {
-  result: AnalysisResultType;
-  originalMessage: string;
+  result: UnifiedAssessmentOutput;
+  mode: 'instant' | 'coach';
+  onReset: () => void;
 }
 
 const riskConfig = {
   safe: {
     label: 'Looks Safe',
-    icon: <Shield className="h-6 w-6 text-[hsl(var(--chart-2))]" />,
-    variant: 'secondary',
+    icon: <Shield className="h-8 w-8 text-[hsl(var(--chart-2))]" />,
     className: 'border-[hsl(var(--chart-2))]',
   },
   'be careful': {
     label: 'Be Careful',
-    icon: <ShieldAlert className="h-6 w-6 text-primary" />,
-    variant: 'secondary',
+    icon: <ShieldAlert className="h-8 w-8 text-primary" />,
     className: 'border-primary',
   },
   'likely a scam': {
     label: 'Likely a Scam',
-    icon: <ShieldX className="h-6 w-6 text-destructive" />,
-    variant: 'destructive',
+    icon: <ShieldX className="h-8 w-8 text-destructive" />,
     className: 'border-destructive',
   },
 } as const;
 
-export function AnalysisResult({ result, originalMessage }: AnalysisResultProps) {
-  const { toast } = useToast();
+function VerdictCard({
+  verdict,
+  recommendation,
+  onReset,
+}: {
+  verdict: UnifiedAssessmentOutput['verdict'];
+  recommendation: string;
+  onReset: () => void;
+}) {
+  const config = riskConfig[verdict];
+  return (
+    <Card className={config.className}>
+      <CardHeader>
+        <div className="flex items-center gap-4">
+          {config.icon}
+          <CardTitle className="text-3xl">{config.label}</CardTitle>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <h3 className="font-semibold mb-2 text-lg">Our Recommendation:</h3>
+        <p className="text-foreground/90">{recommendation}</p>
+      </CardContent>
+      <CardFooter>
+        <Button onClick={onReset} variant="outline">
+          <RefreshCw className="mr-2 h-4 w-4" />
+          Analyze Another
+        </Button>
+      </CardFooter>
+    </Card>
+  );
+}
 
-  const handleShare = () => {
-    let shareText = '';
-    if (result.type === 'instant') {
-      shareText = `I checked a message with ScamSensei and it's been flagged as "${
-        result.riskLevel
-      }".\n\nOriginal message:\n"${originalMessage}"\n\nReasoning from ScamSensei:\n${
-        result.reasoning
-      }`;
-    } else {
-      shareText = `I analyzed a message with ScamSensei's Coach Approach.\n\nOriginal message:\n"${originalMessage}"\n\nHere's what it asked me to consider:\n${
-        result.question
-      }`;
-    }
-
-    if (navigator.share) {
-      navigator
-        .share({
-          title: 'ScamSensei Analysis Result',
-          text: shareText,
-        })
-        .catch((error) => console.log('Error sharing', error));
-    } else {
-      navigator.clipboard.writeText(shareText).then(() => {
-        toast({
-          title: 'Copied to clipboard!',
-          description: 'You can now paste this to share.',
-        });
-      });
-    }
-  };
-
-  if (result.type === 'instant') {
-    const config = riskConfig[result.riskLevel];
-    return (
-      <Card className={config.className}>
+function InstantAnalysis({
+  result,
+  onReset,
+}: Omit<AnalysisResultProps, 'mode'>) {
+  return (
+    <div className="space-y-8">
+      <VerdictCard
+        verdict={result.verdict}
+        recommendation={result.recommendation}
+        onReset={onReset}
+      />
+      <Card>
         <CardHeader>
-          <div className="flex items-center gap-4">
-            {config.icon}
-            <div>
-              <CardTitle className="text-2xl">{config.label}</CardTitle>
-              <Badge variant={config.variant} className="mt-1">
-                {result.riskLevel}
-              </Badge>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <h3 className="font-semibold mb-2">Here's why:</h3>
-          <p className="text-foreground/90 whitespace-pre-wrap">
-            {result.reasoning}
-          </p>
-        </CardContent>
-        <CardFooter>
-          <Button onClick={handleShare} variant="ghost">
-            <Share2 className="mr-2 h-4 w-4" />
-            Share with Family
-          </Button>
-        </CardFooter>
-      </Card>
-    );
-  }
-
-  if (result.type === 'coach') {
-    return (
-      <Card className="bg-secondary">
-        <CardHeader>
-          <CardTitle className="text-2xl">Coach's Question</CardTitle>
+          <CardTitle>Analysis Checklist</CardTitle>
           <CardDescription>
-            Think about this and see what you notice.
+            Here's a point-by-point breakdown of our assessment. Click on any
+            item to see our reasoning.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <blockquote className="border-l-4 border-accent pl-4">
-            <p className="text-lg font-medium text-foreground/90">
-              "{result.question}"
-            </p>
-          </blockquote>
-          {result.isScam && result.reason && (
-            <div className="mt-4 p-4 rounded-md bg-destructive/10">
-              <h3 className="font-bold text-destructive">Heads up!</h3>
-              <p className="text-destructive/90">{result.reason}</p>
-            </div>
-          )}
+          <Accordion type="multiple" className="w-full">
+            {result.checklist.map((item) => (
+              <AccordionItem key={item.id} value={item.id}>
+                <AccordionTrigger className="hover:no-underline">
+                  <div className="flex items-center gap-4 text-left">
+                    {item.ai_answer === 'Yes' ? (
+                      <AlertCircle className="h-6 w-6 text-destructive flex-shrink-0" />
+                    ) : (
+                      <CheckCircle2 className="h-6 w-6 text-[hsl(var(--chart-2))] flex-shrink-0" />
+                    )}
+                    <span className="text-base">{item.question}</span>
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent className="p-4 bg-secondary/50 rounded-b-md space-y-4">
+                  <div className="flex gap-2">
+                    <Info className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-0.5" />
+                    <p className="italic text-muted-foreground">
+                      {item.explanation}
+                    </p>
+                  </div>
+                  <p className="whitespace-pre-wrap">{item.ai_reasoning}</p>
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
         </CardContent>
-        <CardFooter>
-          <Button onClick={handleShare} variant="ghost">
-            <Share2 className="mr-2 h-4 w-4" />
-            Share with Family
-          </Button>
-        </CardFooter>
       </Card>
+    </div>
+  );
+}
+
+function CoachingAnalysis({
+  result,
+  onReset,
+}: Omit<AnalysisResultProps, 'mode'>) {
+  const [step, setStep] = useState(0);
+  const [feedback, setFeedback] = useState<{
+    userAnswer: 'Yes' | 'No';
+    isCorrect: boolean;
+  } | null>(null);
+
+  const currentItem = result.checklist[step];
+
+  const handleAnswer = (userAnswer: 'Yes' | 'No') => {
+    const aiAnswer = currentItem.ai_answer;
+    const isCorrect = userAnswer === aiAnswer || aiAnswer === 'N/A';
+    setFeedback({ userAnswer, isCorrect });
+  };
+
+  const handleNext = () => {
+    setFeedback(null);
+    setStep((prev) => prev + 1);
+  };
+
+  if (step >= result.checklist.length) {
+    return (
+      <div className="space-y-8">
+        <h2 className="text-center text-2xl font-bold tracking-tight">
+          Coaching Complete! Here's the final verdict.
+        </h2>
+        <VerdictCard
+          verdict={result.verdict}
+          recommendation={result.recommendation}
+          onReset={onReset}
+        />
+      </div>
     );
   }
 
+  return (
+    <Card className="bg-secondary">
+      <CardHeader>
+        <CardTitle className="text-2xl">
+          Coaching Mode ({step + 1} / {result.checklist.length})
+        </CardTitle>
+        <CardDescription>
+          Let's analyze this together. What do you think?
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        <blockquote className="border-l-4 border-accent pl-4">
+          <p className="text-xl font-medium text-foreground/90">
+            "{currentItem.question}"
+          </p>
+        </blockquote>
+        <div className="flex gap-2 text-sm items-start bg-background/50 p-3 rounded-md">
+          <Info className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-0.5" />
+          <p className="text-muted-foreground">{currentItem.explanation}</p>
+        </div>
+
+        {!feedback && (
+          <div className="flex justify-center gap-4 pt-4">
+            <Button
+              size="lg"
+              variant="destructive"
+              onClick={() => handleAnswer('Yes')}
+              className="w-32"
+            >
+              <AlertCircle className="mr-2 h-5 w-5" /> Yes
+            </Button>
+            <Button
+              size="lg"
+              variant="secondary"
+              className="w-32"
+              onClick={() => handleAnswer('No')}
+            >
+              <CheckCircle2 className="mr-2 h-5 w-5" /> No
+            </Button>
+          </div>
+        )}
+
+        {feedback && (
+          <div className="p-4 rounded-md border bg-background animate-in fade-in">
+            <h3 className="font-bold mb-2 text-lg">
+              {feedback.isCorrect ? 'You got it!' : "That's a tricky one."}
+            </h3>
+            <p className="mb-4">
+              You answered{' '}
+              <span className="font-bold">{feedback.userAnswer}</span>. Our AI
+              said <span className="font-bold">{currentItem.ai_answer}</span>.
+            </p>
+            <p className="text-muted-foreground whitespace-pre-wrap">
+              {currentItem.ai_reasoning}
+            </p>
+          </div>
+        )}
+      </CardContent>
+      {feedback && (
+        <CardFooter>
+          <Button onClick={handleNext} className="w-full">
+            {step === result.checklist.length - 1
+              ? 'See Final Verdict'
+              : 'Next Question'}
+          </Button>
+        </CardFooter>
+      )}
+    </Card>
+  );
+}
+
+export function AnalysisResult({ result, mode, onReset }: AnalysisResultProps) {
+  if (mode === 'instant') {
+    return <InstantAnalysis result={result} onReset={onReset} />;
+  }
+  if (mode === 'coach') {
+    return <CoachingAnalysis result={result} onReset={onReset} />;
+  }
   return null;
 }

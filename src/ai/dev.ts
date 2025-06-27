@@ -1,5 +1,4 @@
 import { config } from 'dotenv';
 config();
 
-import '@/ai/flows/instant-scam-assessment.ts';
-import '@/ai/flows/coach-approach.ts';
+import '@/ai/flows/unified-assessment.ts';
