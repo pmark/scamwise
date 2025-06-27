@@ -169,24 +169,34 @@ export function ScamAnalyzer() {
             </div>
           )}
         </CardContent>
-        <CardFooter className="flex flex-col sm:flex-row justify-between gap-4">
-          <Button
-            onClick={() => handleAnalysis('coach')}
-            className="w-full sm:w-auto bg-accent hover:bg-accent/90"
-            disabled={isLoading}
-          >
-            <BotMessageSquare className="mr-2 h-5 w-5" />
-            The Coach Approach
-          </Button>
-          <Button
-            onClick={() => handleAnalysis('instant')}
-            variant="secondary"
-            className="w-full sm:w-auto"
-            disabled={isLoading}
-          >
-            <ShieldAlert className="mr-2 h-5 w-5" />
-            Quick Answer Mode
-          </Button>
+        <CardFooter className="flex flex-col sm:flex-row justify-between items-start gap-6 border-t pt-6">
+          <div className="flex-1 w-full">
+            <Button
+              onClick={() => handleAnalysis('coach')}
+              className="w-full sm:w-auto bg-accent hover:bg-accent/90"
+              disabled={isLoading}
+            >
+              <BotMessageSquare className="mr-2 h-5 w-5" />
+              Coach Me
+            </Button>
+            <p className="text-xs text-muted-foreground mt-2">
+              Let me guide you with questions to help you spot the scam.
+            </p>
+          </div>
+          <div className="flex-1 w-full sm:text-right">
+            <Button
+              onClick={() => handleAnalysis('instant')}
+              variant="secondary"
+              className="w-full sm:w-auto"
+              disabled={isLoading}
+            >
+              <ShieldAlert className="mr-2 h-5 w-5" />
+              Get Instant Answer
+            </Button>
+            <p className="text-xs text-muted-foreground mt-2">
+              Get a fast verdict on whether this is a scam.
+            </p>
+          </div>
         </CardFooter>
       </Card>
 
