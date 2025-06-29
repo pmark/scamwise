@@ -3,6 +3,7 @@ import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import { Header } from '@/components/header';
 import { Footer } from '@/components/footer';
+import Script from 'next/script';
 
 export const metadata: Metadata = {
   title: 'ScamWise - Your Personal Scam-Spotting Coach',
@@ -34,6 +35,19 @@ export default function RootLayout({
         <main className="flex-grow">{children}</main>
         <Footer />
         <Toaster />
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-KL008XDLZS"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+
+            gtag('config', 'G-KL008XDLZS');
+          `}
+        </Script>
       </body>
     </html>
   );
