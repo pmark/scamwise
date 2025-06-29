@@ -34,7 +34,7 @@ Most importantly, you will fill out a checklist of evaluation points. For each p
 
 Checklist to evaluate:
 1.  **Sender Identity**: Is the sender's identity suspicious or unverified? (id: "sender_identity")
-    - Question: "Is the sender who they claim to be?"
+    - Question: "Is there anything suspicious about the sender's name, email, or phone number?"
     - Explanation: "Scammers often use fake email addresses, phone numbers, or social media profiles that look similar to legitimate ones."
 2.  **Urgency and Pressure**: Does the message create a sense of urgency or pressure you to act quickly? (id: "urgency_pressure")
     - Question: "Are you being pressured to act immediately?"
