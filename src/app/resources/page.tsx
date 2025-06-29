@@ -28,7 +28,7 @@ const resources = [
     title: 'AARP Fraud Watch Network',
     description:
       'A free resource for all. Get access to a scam-tracking map, and a helpline for when you\'re feeling worried.',
-    link: 'https://www.aarp.org/money/scams-fraud/watchdog-network/',
+    link: 'https://www.aarp.org/money/scams-fraud.html',
     linkText: 'AARP Fraud Watch',
   },
   {
