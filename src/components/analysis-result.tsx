@@ -77,13 +77,13 @@ function VerdictCard({
         <h3 className="font-semibold mb-2 text-lg">Our Recommendation:</h3>
         <p className="text-foreground/90">{recommendation}</p>
       </CardContent>
-      <CardFooter className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <CardFooter className="flex flex-col items-center gap-6 border-t pt-6">
         <Button onClick={onReset} variant="outline">
           <RefreshCw className="mr-2 h-4 w-4" />
           Analyze Another
         </Button>
-        <div className="text-center sm:text-right">
-          <p className="text-xs text-muted-foreground mb-2">
+        <div className="flex flex-col items-center gap-2 text-center">
+          <p className="text-xs text-muted-foreground">
             This service has real costs to run. Your support is greatly
             appreciated!
           </p>
