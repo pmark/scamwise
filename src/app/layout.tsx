@@ -4,6 +4,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { Header } from '@/components/header';
 import { Footer } from '@/components/footer';
 import Script from 'next/script';
+import { FirebaseAnalytics } from '@/components/firebase-analytics';
 
 export const metadata: Metadata = {
   title: 'ScamWise - Your Personal Scam-Spotting Coach',
@@ -31,6 +32,7 @@ export default function RootLayout({
         ></link>
       </head>
       <body className="font-body antialiased bg-background text-foreground flex flex-col min-h-screen">
+        <FirebaseAnalytics />
         <Header />
         <main className="flex-grow">{children}</main>
         <Footer />
