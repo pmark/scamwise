@@ -6,11 +6,13 @@ import { app } from '@/lib/firebase';
 
 export function FirebaseAnalytics() {
   useEffect(() => {
-    isSupported().then((supported) => {
-      if (supported) {
-        getAnalytics(app);
-      }
-    });
+    if (app) {
+      isSupported().then((supported) => {
+        if (supported) {
+          getAnalytics(app);
+        }
+      });
+    }
   }, []);
 
   return null;
