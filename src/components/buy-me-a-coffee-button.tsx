@@ -6,7 +6,7 @@ import Image from 'next/image';
 export const BuyMeACoffeeButton = () => {
   return (
     <Link
-      href="https://www.buymeacoffee.com/scamwise"
+      href="https://www.buymeacoffee.com/martianrover"
       target="_blank"
       rel="noopener noreferrer"
     >
