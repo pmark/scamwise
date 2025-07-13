@@ -28,6 +28,7 @@ import {
   ShieldX,
   RefreshCw,
   Info,
+  ChevronDown,
 } from 'lucide-react';
 import { BuyMeACoffeeButton } from './buy-me-a-coffee-button';
 
@@ -35,6 +36,8 @@ interface AnalysisResultProps {
   result: UnifiedAssessmentOutput;
   mode: 'instant' | 'coach';
   onReset: () => void;
+  originalMessage: string;
+  originalPhoto: string | null;
 }
 
 const riskConfig = {
@@ -54,6 +57,42 @@ const riskConfig = {
     className: 'border-destructive',
   },
 } as const;
+
+function SubmittedContent({
+  message,
+  photo,
+}: {
+  message: string;
+  photo: string | null;
+}) {
+  if (!message && !photo) return null;
+
+  return (
+    <Accordion type="single" collapsible className="w-full">
+      <AccordionItem value="submission" className="border-b-0">
+        <AccordionTrigger className="text-sm font-semibold text-muted-foreground hover:no-underline">
+          Your Submission
+        </AccordionTrigger>
+        <AccordionContent className="p-4 bg-secondary/50 rounded-md space-y-4">
+          {message && (
+            <blockquote className="border-l-4 pl-4 italic text-foreground whitespace-pre-wrap">
+              {message}
+            </blockquote>
+          )}
+          {photo && (
+            <div className="relative mt-2">
+              <img
+                src={photo}
+                alt="Uploaded submission"
+                className="rounded-md max-h-60 w-auto mx-auto border"
+              />
+            </div>
+          )}
+        </AccordionContent>
+      </AccordionItem>
+    </Accordion>
+  );
+}
 
 function VerdictCard({
   verdict,
@@ -97,9 +136,12 @@ function VerdictCard({
 function InstantAnalysis({
   result,
   onReset,
+  originalMessage,
+  originalPhoto,
 }: Omit<AnalysisResultProps, 'mode'>) {
   return (
-    <div className="space-y-8">
+    <div className="space-y-4">
+      <SubmittedContent message={originalMessage} photo={originalPhoto} />
       <VerdictCard
         verdict={result.verdict}
         recommendation={result.recommendation}
@@ -148,6 +190,8 @@ function InstantAnalysis({
 function CoachingAnalysis({
   result,
   onReset,
+  originalMessage,
+  originalPhoto,
 }: Omit<AnalysisResultProps, 'mode'>) {
   const [step, setStep] = useState(0);
   const [feedback, setFeedback] = useState<{
@@ -170,10 +214,11 @@ function CoachingAnalysis({
 
   if (step >= result.checklist.length) {
     return (
-      <div className="space-y-8">
+      <div className="space-y-4">
         <h2 className="text-center text-2xl font-bold tracking-tight">
           Coaching Complete! Here's the final verdict.
         </h2>
+        <SubmittedContent message={originalMessage} photo={originalPhoto} />
         <VerdictCard
           verdict={result.verdict}
           recommendation={result.recommendation}
@@ -192,6 +237,9 @@ function CoachingAnalysis({
         <CardDescription>
           Let's analyze this together. What do you think?
         </CardDescription>
+        <div className="pt-2">
+            <SubmittedContent message={originalMessage} photo={originalPhoto} />
+        </div>
       </CardHeader>
       <CardContent className="space-y-6">
         <blockquote className="border-l-4 border-accent pl-4">
@@ -254,12 +302,12 @@ function CoachingAnalysis({
   );
 }
 
-export function AnalysisResult({ result, mode, onReset }: AnalysisResultProps) {
+export function AnalysisResult({ result, mode, onReset, originalMessage, originalPhoto }: AnalysisResultProps) {
   if (mode === 'instant') {
-    return <InstantAnalysis result={result} onReset={onReset} />;
+    return <InstantAnalysis result={result} onReset={onReset} originalMessage={originalMessage} originalPhoto={originalPhoto}/>;
   }
   if (mode === 'coach') {
-    return <CoachingAnalysis result={result} onReset={onReset} />;
+    return <CoachingAnalysis result={result} onReset={onReset} originalMessage={originalMessage} originalPhoto={originalPhoto} />;
   }
   return null;
 }

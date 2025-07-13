@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import type { UnifiedAssessmentOutput } from '@/ai/types';
 import { getUnifiedAssessment } from '@/app/actions';
 
@@ -29,6 +29,13 @@ export function ScamAnalyzer() {
   );
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const resultRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (analysisResult && resultRef.current) {
+      resultRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [analysisResult]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -110,11 +117,16 @@ export function ScamAnalyzer() {
 
   if (analysisResult && analysisMode) {
     return (
-      <div className="mt-8 animate-in fade-in duration-500">
+      <div
+        ref={resultRef}
+        className="mt-8 animate-in fade-in duration-500 scroll-mt-8"
+      >
         <AnalysisResult
           result={analysisResult}
           mode={analysisMode}
           onReset={resetAnalysis}
+          originalMessage={message}
+          originalPhoto={photoDataUri}
         />
       </div>
     );
