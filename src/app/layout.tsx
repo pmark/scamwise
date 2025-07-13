@@ -7,9 +7,49 @@ import Script from 'next/script';
 import { FirebaseAnalytics } from '@/components/firebase-analytics';
 
 export const metadata: Metadata = {
-  title: 'ScamWise - Your Personal Scam-Spotting Coach',
+  metadataBase: new URL('https://scamwise.martianrover.com'), // Replace with your actual domain
+  title: {
+    default: 'ScamWise - Your Personal Scam-Spotting Coach',
+    template: '%s | ScamWise',
+  },
   description:
     'Build confidence in spotting scams. Get quick answers or let our Coach Approach guide you. Simple, private, and designed to make you more confident.',
+  keywords: [
+    'scam detector',
+    'phishing checker',
+    'email scanner',
+    'text message scam',
+    'online safety',
+    'fraud prevention',
+    'scam analysis',
+  ],
+  openGraph: {
+    title: 'ScamWise - Your Personal Scam-Spotting Coach',
+    description: 'Trust Your Instincts. We\'ll Help You Verify Them.',
+    type: 'website',
+    locale: 'en_US',
+    url: 'https://scamwise.martianrover.com', // Replace with your actual domain
+    siteName: 'ScamWise',
+    images: [
+      {
+        url: '/opengraph-image.png', // The dynamically generated image
+        width: 1200,
+        height: 630,
+        alt: 'ScamWise - Your Personal Scam-Spotting Coach',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'ScamWise - Your Personal Scam-Spotting Coach',
+    description: 'Trust Your Instincts. We\'ll Help You Verify Them.',
+    images: ['/opengraph-image.png'],
+  },
+  icons: {
+    icon: '/favicon.svg',
+    shortcut: '/favicon.svg',
+    apple: '/apple-touch-icon.png',
+  },
 };
 
 export default function RootLayout({
