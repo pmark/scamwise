@@ -1,4 +1,4 @@
-# ScamWise - Your Personal Scam-Spotting Coach
+# Scam detection and coaching tool - Your Personal Scam-Spotting Coach
 
 <div align="center">
   <img src="https://raw.githubusercontent.com/google/generative-ai-docs/main/public/images/firebase/scam-wise-social-card.png" alt="ScamWise Social Share Image" width="600px"/>
